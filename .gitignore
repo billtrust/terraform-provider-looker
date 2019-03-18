@@ -1,0 +1,7 @@
+.terraform
+terraform-provider-looker
+.env
+crash.log
+terraform.tfstate
+terraform.tfstate.backup
+bin

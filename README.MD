@@ -83,6 +83,14 @@ resource "looker_user" "user" {
 ```
 
 ```
+resource "looker_user_attribute" "my_user_attribute" {
+  name   = "my_name"
+  label  = "Display Label"
+  type   = "advanced_filter_string"
+}
+```
+
+```
 resource "looker_user_roles" "user_roles" {
   user_id    = "${looker_user.user.id}"
   role_names = ["Admin"]
@@ -163,7 +171,8 @@ resource "looker_connection" "snowflake_connection" {
   schema                 = "PUBLIC"
   jdbc_additional_params = "account=${var.snowflake_account}&warehouse=LOAD_WH"
   ssl                    = true
-}```
+}
+```
 
 ```
 resource "looker_project" "my_project" {

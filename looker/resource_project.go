@@ -11,6 +11,14 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
+func getProject(projectID string, client *apiclient.LookerAPI30Reference) (*project.ProjectOK, error) {
+	params := project.NewProjectParams()
+	params.ProjectID = projectID
+
+	result, err := client.Project.Project(params)
+	return result, err
+}
+
 func resourceProject() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceProjectCreate,
@@ -93,7 +101,21 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 
 	_, err := client.Project.UpdateProject(params)
 	if err != nil {
-		return err
+		// looker gives "An error has occured" 500 error even though the name correctly is updated
+		if !strings.Contains(err.Error(), "An error has occurred.") {
+			return err
+		}
+
+		// the project might be updated correctly, check by getting the project with the new name
+		_, readError := getProject(name, client)
+		if readError != nil {
+			return err // return original error for the update
+		}
+
+		// looks like update of the name was succesful because we can query for it now.  Update the ID to be the new name and read it back
+		d.SetId(name)
+
+		return resourceProjectRead(d, m)
 	}
 
 	return resourceProjectRead(d, m)

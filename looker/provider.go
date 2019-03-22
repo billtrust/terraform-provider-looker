@@ -53,6 +53,7 @@ func Provider() terraform.ResourceProvider {
 			"looker_project":                 resourceProject(),
 			"looker_git_deploy_key":          resourceGitDeployKey(),
 			"looker_project_git_details":     resourceProjectGitDetails(),
+			"looker_user_attribute":          resourceUserAttribute(),
 		},
 
 		ConfigureFunc: providerConfigure,

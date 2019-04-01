@@ -92,6 +92,11 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerAPI30Reference)
 
+	err := updateSession(client, "dev")
+	if err != nil {
+		return err
+	}
+
 	name := d.Get("name").(string)
 
 	params := project.NewUpdateProjectParams()
@@ -99,7 +104,7 @@ func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body = &models.Project{}
 	params.Body.Name = name
 
-	_, err := client.Project.UpdateProject(params)
+	_, err = client.Project.UpdateProject(params)
 	if err != nil {
 		// looker gives "An error has occured" 500 error even though the name correctly is updated
 		if !strings.Contains(err.Error(), "An error has occurred.") {

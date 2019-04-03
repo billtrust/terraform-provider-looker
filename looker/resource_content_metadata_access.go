@@ -3,6 +3,7 @@ package looker
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bmccarthy/looker-go-sdk/client/content"
 
@@ -52,6 +53,7 @@ func getContentMetadataAccess(m interface{}, contentMetadataID int64, groupID in
 	client := m.(*apiclient.LookerAPI30Reference)
 
 	params := content.NewAllContentMetadataAccesssParams()
+	params.SetTimeout(time.Minute * 5)
 	params.ContentMetadataID = &contentMetadataID
 
 	result, err := client.Content.AllContentMetadataAccesss(params)

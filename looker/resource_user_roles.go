@@ -3,8 +3,8 @@ package looker
 import (
 	"strings"
 
-	apiclient "github.com/bmccarthy/looker-go-sdk/client"
-	"github.com/bmccarthy/looker-go-sdk/client/user"
+	apiclient "github.com/billtrust/looker-go-sdk/client"
+	"github.com/billtrust/looker-go-sdk/client/user"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

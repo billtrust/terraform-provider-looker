@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bmccarthy/looker-go-sdk/client/connection"
+	"github.com/billtrust/looker-go-sdk/client/connection"
 
-	apiclient "github.com/bmccarthy/looker-go-sdk/client"
-	"github.com/bmccarthy/looker-go-sdk/models"
+	apiclient "github.com/billtrust/looker-go-sdk/client"
+	"github.com/billtrust/looker-go-sdk/models"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

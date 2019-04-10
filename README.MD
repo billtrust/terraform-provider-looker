@@ -56,7 +56,7 @@ docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -
 
 ### Mac
 ```shell
-docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.10 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-looker && chmod 777 bin/terraform-provider-looker"
+docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.10 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-looker"
 ```
 
 ## Usage

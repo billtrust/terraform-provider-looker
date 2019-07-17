@@ -67,7 +67,7 @@ func getContentMetadataAccess(m interface{}, contentMetadataID int64, groupID in
 		}
 	}
 
-	return nil, fmt.Errorf("Content Metadata Access not found")
+	return nil, fmt.Errorf("Content Metadata Access Not found")
 }
 
 func resourceContentMetadataAccessCreate(d *schema.ResourceData, m interface{}) error {

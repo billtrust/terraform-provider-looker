@@ -46,17 +46,17 @@
 ## Build
 ### Linux
 ```shell
-docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.10 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/terraform-provider-looker"
+docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.12 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/terraform-provider-looker"
 ```
 
 ### Windows
 ```shell
-docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.10 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/terraform-provider-looker.exe"
+docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.12 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/terraform-provider-looker.exe"
 ```
 
 ### Mac
 ```shell
-docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.10 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-looker"
+docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.12 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-looker"
 ```
 
 ## Usage

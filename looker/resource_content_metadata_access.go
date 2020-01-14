@@ -2,6 +2,7 @@ package looker
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -84,6 +85,7 @@ func resourceContentMetadataAccessCreate(d *schema.ResourceData, m interface{}) 
 	}
 
 	params := content.NewCreateContentMetadataAccessParams()
+	params.SetTimeout(time.Minute * 5)
 	params.Body = &models.ContentMetaGroupUser{}
 	params.Body.ContentMetadataID = contentMetadataID
 	params.Body.GroupID = groupID
@@ -174,10 +176,17 @@ func resourceContentMetadataAccessDelete(d *schema.ResourceData, m interface{}) 
 
 	client := m.(*apiclient.LookerAPI30Reference)
 	params := content.NewDeleteContentMetadataAccessParams()
+	params.SetTimeout(time.Minute * 5)
 	params.ContentMetadataAccessID = access.ID
 
 	_, err = client.Content.DeleteContentMetadataAccess(params)
 	if err != nil {
+		// if the error is "Cannot remove access for [group_name] Group with edit on parent", I think the correct thing to do is ignore this error since the user already has edit on parent.
+		// When/if parent access is deleted, it deletes access on child (verified)
+		if strings.Contains(err.Error(), "with edit on parent") {
+			log.Printf("[WARN] Deleting access from child does not work since it is inherited from parent., %s", err.Error())
+			return nil
+		}
 		return err
 	}
 

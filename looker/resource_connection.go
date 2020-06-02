@@ -89,6 +89,14 @@ func resourceConnection() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"db_timezone": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"query_timezone": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -108,6 +116,8 @@ func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Schema = d.Get("schema").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
+	params.Body.DbTimezone = d.Get("db_timezone").(string)
+	params.Body.QueryTimezone = d.Get("query_timezone").(string)
 
 	result, err := client.Connection.CreateConnection(params)
 	if err != nil {
@@ -145,6 +155,8 @@ func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("schema", result.Payload.Schema)
 	d.Set("jdbc_additional_params", result.Payload.JdbcAdditionalParams)
 	d.Set("ssl", result.Payload.Ssl)
+	d.Set("db_timezone", result.Payload.DbTimezone)
+	d.Set("query_timezone", result.Payload.QueryTimezone)
 
 	return nil
 }
@@ -165,6 +177,8 @@ func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Schema = d.Get("schema").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
+	params.Body.DbTimezone = d.Get("db_timezone").(string)
+	params.Body.QueryTimezone = d.Get("query_timezone").(string)
 
 	_, err := client.Connection.UpdateConnection(params)
 	if err != nil {

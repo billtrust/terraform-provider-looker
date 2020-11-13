@@ -6,7 +6,7 @@ import (
 	"github.com/billtrust/looker-go-sdk/client/role"
 
 	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceRoleGroups() *schema.Resource {

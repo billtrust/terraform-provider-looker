@@ -9,12 +9,11 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/hashicorp/terraform/terraform"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"client_id": {

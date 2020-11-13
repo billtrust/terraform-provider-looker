@@ -10,7 +10,7 @@ import (
 
 	apiclient "github.com/billtrust/looker-go-sdk/client"
 	"github.com/billtrust/looker-go-sdk/models"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // The GET resource for metadata content access does not exist, we need to search all the metadata content access for a specific contentmetadaid and than look for the group id.

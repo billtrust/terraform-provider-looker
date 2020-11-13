@@ -8,7 +8,7 @@ import (
 	"github.com/billtrust/looker-go-sdk/client/role"
 	"github.com/billtrust/looker-go-sdk/client/session"
 	"github.com/billtrust/looker-go-sdk/models"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func updateSession(client *apiclient.LookerAPI30Reference, mode string) error {

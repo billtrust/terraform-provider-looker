@@ -69,9 +69,9 @@ variable "looker_base_url" {}
 variable "looker_api_port" {}
 
 provider "looker" {
-  client_id     = "${var.looker_client_id}"
-  client_secret = "${var.looker_client_secret}"
-  base_url      = "${var.looker_base_url}:${var.looker_api_port}"
+  client_id     = var.looker_client_id
+  client_secret = var.looker_client_secret
+  base_url      = var.looker_base_url}:${var.looker_api_port
 }
 ```
 
@@ -92,17 +92,17 @@ resource "looker_user_attribute" "my_user_attribute" {
 
 ```
 resource "looker_user_roles" "user_roles" {
-  user_id    = "${looker_user.user.id}"
+  user_id    = looker_user.user.id
   role_names = ["Admin"]
 }
 ```
 
 ```
 resource "looker_user_api_key" "user_api_key" {
-  user_id = "${looker_user.user.id}"
+  user_id = looker_user.user.id
 
   provisioner "local-exec" {
-    command    = "google-chrome ${var.looker_base_url}/admin/users/api3_key/${self.user_id}"
+    command    = join("", ["google-chrome ", var.looker_base_url, "/admin/users/api3_key/", ${self.user_id}"])
     on_failure = "continue"
   }
 }
@@ -125,8 +125,8 @@ resource "looker_model_set" "model_set" {
 ```
 resource "looker_role" "embed_role" {
   name              = "Embed User Role"
-  permission_set_id = "${looker_permission_set.embed_permission_set.id}"
-  model_set_id      = "${looker_model_set.model_set.id}"
+  permission_set_id = looker_permission_set.embed_permission_set.id
+  model_set_id      = looker_model_set.model_set.id
 }
 ```
 
@@ -138,8 +138,8 @@ resource "looker_group" "embed_group" {
 
 ```
 resource "looker_role_groups" "embed_role_groups" {
-  role_id   = "${looker_role.embed_role.id}"
-  group_ids = ["${looker_group.embed_group.id}"]
+  role_id   = looker_role.embed_role.id
+  group_ids = [looker_group.embed_group.id]
 }
 ```
 
@@ -153,8 +153,8 @@ resource "looker_main_space" "my_shared_space" {
 
 ```
 resource "looker_content_metadata_access" "embed_groups_space_access" {
-  group_id            = "${looker_group.embed_group.id}"
-  content_metadata_id = "${looker_main_space.my_shared_space.content_metadata_id}"
+  group_id            = looker_group.embed_group.id
+  content_metadata_id = looker_main_space.my_shared_space.content_metadata_id
   permission_type     = "view"
 }
 ```
@@ -163,13 +163,13 @@ resource "looker_content_metadata_access" "embed_groups_space_access" {
 resource "looker_connection" "snowflake_connection" {
   name                   = "snowflake"
   dialect_name           = "snowflake"
-  host                   = "${var.snowflake_host}"
+  host                   = var.snowflake_host
   port                   = "443"
   database               = "MY_DATABASE"
-  username               = "${var.snowflake_username}"
-  password               = "${var.snowflake_password}"
+  username               = var.snowflake_username
+  password               = var.snowflake_password
   schema                 = "PUBLIC"
-  jdbc_additional_params = "account=${var.snowflake_account}&warehouse=LOAD_WH"
+  jdbc_additional_params = join("", ["account","=", var.snowflake_account, '&', "warehouse=LOAD_WH"])
   ssl                    = true
   db_timezone            = "UTC"
   query_timezone         = "UTC"
@@ -184,15 +184,15 @@ resource "looker_project" "my_project" {
 
 ```
 resource "looker_git_deploy_key" "project_git_deploy_key" {
-  project_id = "${looker_project.my_project.id}"
+  project_id = looker_project.my_project.id
 }
 ```
 
 ```
 resource "github_repository_deploy_key" "looker_git_deploy_key" {
-  title      = "${looker_git_deploy_key.project_git_deploy_key.id}"
+  title      = looker_git_deploy_key.project_git_deploy_key.id
   repository = "my-looker-repository"
-  key        = "${looker_git_deploy_key.project_git_deploy_key.ssh_deploy_key}"
+  key        = looker_git_deploy_key.project_git_deploy_key.ssh_deploy_key
   read_only  = "false"
 }
 

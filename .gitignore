@@ -5,3 +5,5 @@ crash.log
 terraform.tfstate
 terraform.tfstate.backup
 bin
+terraform-provider-looker_v*
+go.sum

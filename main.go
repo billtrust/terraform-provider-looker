@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/billtrust/terraform-provider-looker/looker"
+	"github.com/cambiahealth/terraform-provider-looker/looker"
 	"github.com/hashicorp/terraform/plugin"
 )
 

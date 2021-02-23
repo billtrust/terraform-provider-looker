@@ -8,7 +8,8 @@ all : $(EXE)
 $(EXE) : terraform-provider-looker VERSION
 	cp -v terraform-provider-looker $(EXE)
 
-terraform-provider-looker : main.go looker/*.go
+terraform-provider-looker : main.go looker/*.go go.mod
+	go get
 	go build
 
 clean :

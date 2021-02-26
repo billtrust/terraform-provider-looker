@@ -31,10 +31,6 @@ func resourceModel() *schema.Resource {
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"label": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-			},
 			"project_name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -50,12 +46,11 @@ func resourceModelCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body = &models.LookmlModel{}
 	params.Body.Name = d.Get("name").(string)
 	params.Body.ProjectName = d.Get("project_name").(string)
-	// params.Body.Label = d.Get("label").(string)
 	var connectionNames []string
 	for _, modelName := range d.Get("allowed_db_connection_names").(*schema.Set).List() {
 		connectionNames = append(connectionNames, modelName.(string))
 	}
-	// params.Body.AllowedDbConnectionNames = connectionNames
+	params.Body.AllowedDbConnectionNames = connectionNames
 
 	model, err := client.LookmlModel.CreateLookmlModel(params)
 	if err != nil {
@@ -65,7 +60,7 @@ func resourceModelCreate(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(model.Payload.Name)
 
-	return resourceUserRead(d, m)
+	return resourceModelRead(d, m)
 }
 
 func resourceModelRead(d *schema.ResourceData, m interface{}) error {
@@ -87,7 +82,6 @@ func resourceModelRead(d *schema.ResourceData, m interface{}) error {
 
 	d.SetId(modelID)
 	d.Set("name", model.Payload.Name)
-	// d.Set("label", model.Payload.Label)
 	d.Set("project_name", model.Payload.ProjectName)
 	d.Set("allowed_db_connection_names", model.Payload.AllowedDbConnectionNames)
 
@@ -104,7 +98,6 @@ func resourceModelUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body = &models.LookmlModel{}
 	params.Body.Name = d.Get("name").(string)
 	params.Body.ProjectName = d.Get("project_name").(string)
-	//params.Body.Label = d.Get("label").(string)
 	var connectionNames []string
 	for _, modelName := range d.Get("allowed_db_connection_names").(*schema.Set).List() {
 		connectionNames = append(connectionNames, modelName.(string))

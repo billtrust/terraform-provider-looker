@@ -40,6 +40,8 @@
   2. Create a ssh private/public key pair
   3. Add the public ssh key to the git repository
   4. Update the Looker project with the details of the git repository
+  
+* **looker_lookerml_model** - sets up a looker ml model with the connection specified.
 
 ## Development
 
@@ -58,6 +60,14 @@ docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -
 ```shell
 docker run -it --rm  -w /go/src/github.com/billtrust/terraform-provider-looker -v `pwd`:/go/src/github.com/billtrust/terraform-provider-looker golang:1.12 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-looker"
 ```
+
+Using go mod
+
+```bash
+
+ go mod init github.com/cambiahealth/terraform-provider-looker && docker run -it --rm  -w /go/src/github.com/cambiahealth/terraform-provider-looker -v `pwd`:/go/src/github.com/cambiahealth/terraform-provider-looker golang:1.14.7 bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/terraform-provider-looker"
+```
+or replace darwin with GOOS=linux if the provider needs to be use with janus-terraform image which is alpine.
 
 ## Usage
 

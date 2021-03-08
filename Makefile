@@ -1,5 +1,5 @@
 VERSION = $(shell cat VERSION | tr -d '\n')
-PLATFORM = $(shell uname -s)_$(shell uname -m)
+PLATFORM = $(shell uname -s | tr '[A-Z]' '[a-z]')_$(shell uname -m)
 TARGET = $${HOME}/.terraform.d/plugins/terraform.foxtel.com/foxtel/looker/$(VERSION)/$(PLATFORM)
 EXE = terraform-provider-looker_v$(VERSION)
 

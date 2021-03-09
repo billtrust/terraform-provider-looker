@@ -36,7 +36,7 @@ func resourceProjectGitDetails() *schema.Resource {
 }
 
 func setProjectGitDetails(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	err := updateSession(client, "dev")
 	if err != nil {
@@ -49,7 +49,7 @@ func setProjectGitDetails(d *schema.ResourceData, m interface{}) error {
 	params := project.NewUpdateProjectParams()
 	params.ProjectID = projectID
 	params.Body = &models.Project{}
-	params.Body.GitRemoteURL = &gitRemoteURL
+	params.Body.GitRemoteURL = gitRemoteURL.String()
 
 	_, err = client.Project.UpdateProject(params)
 	if err != nil {
@@ -76,7 +76,7 @@ func resourceProjectGitDetailsCreate(d *schema.ResourceData, m interface{}) erro
 }
 
 func resourceProjectGitDetailsRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	err := updateSession(client, "dev")
 	if err != nil {
@@ -99,7 +99,7 @@ func resourceProjectGitDetailsRead(d *schema.ResourceData, m interface{}) error 
 	}
 
 	d.Set("project_id", result.Payload.ID)
-	d.Set("git_remote_url", result.Payload.GitRemoteURL.String())
+	d.Set("git_remote_url", result.Payload.GitRemoteURL)
 
 	return nil
 }
@@ -121,7 +121,7 @@ func resourceProjectGitDetailsDelete(d *schema.ResourceData, m interface{}) erro
 func resourceProjectGitDetailsExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	// TODO Not sure if we should always set session to "dev" instead of "production" when checking if it exists? will dev always show all dev+prod projects?
 	err := updateSession(client, "dev")

@@ -36,7 +36,7 @@ func resourcePermissionSet() *schema.Resource {
 }
 
 func resourcePermissionSetCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	var permissions []string
 	for _, permission := range d.Get("permissions").(*schema.Set).List() {
@@ -59,7 +59,7 @@ func resourcePermissionSetCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePermissionSetRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -85,7 +85,7 @@ func resourcePermissionSetRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -112,7 +112,7 @@ func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePermissionSetDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -133,7 +133,7 @@ func resourcePermissionSetDelete(d *schema.ResourceData, m interface{}) error {
 func resourcePermissionSetExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {

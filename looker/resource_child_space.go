@@ -2,6 +2,7 @@ package looker
 
 import (
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/billtrust/looker-go-sdk/client/space"
@@ -40,10 +41,10 @@ func resourceChildSpace() *schema.Resource {
 }
 
 func getChildSpaceByID(d *schema.ResourceData, m interface{}, id int64) (*models.Space, error) {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := space.NewSpaceParams()
-	params.SpaceID = id
+	params.SpaceID = strconv.FormatInt(id, 10)
 
 	result, err := client.Space.Space(params)
 	if err != nil {
@@ -55,24 +56,26 @@ func getChildSpaceByID(d *schema.ResourceData, m interface{}, id int64) (*models
 }
 
 func resourceChildSpaceCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	parentID, err := getIDFromString(d.Get("parent_id").(string))
 	if err != nil {
 		return err
 	}
 
+	var parentIDstr = strconv.FormatInt(parentID, 10)
+
 	params := space.NewCreateSpaceParams()
-	params.Body = &models.Space{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.ParentID = &parentID
+	params.Body = &models.CreateSpace{}
+	params.Body.Name = d.Get("name").(*string)
+	params.Body.ParentID = &parentIDstr
 
 	result, err := client.Space.CreateSpace(params)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(getStringFromID(result.Payload.ID))
+	d.SetId(result.Payload.ID)
 
 	return resourceChildSpaceRead(d, m)
 }
@@ -94,13 +97,13 @@ func resourceChildSpaceRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", space.Name)
 	d.Set("content_metadata_id", getStringFromID(space.ContentMetadataID))
-	d.Set("parent_id", getStringFromID(*space.ParentID))
+	d.Set("parent_id", space.ParentID)
 
 	return nil
 }
 
 func resourceChildSpaceUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -113,10 +116,10 @@ func resourceChildSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	params := space.NewUpdateSpaceParams()
-	params.SpaceID = ID
-	params.Body = &models.Space{}
+	params.SpaceID = strconv.FormatInt(ID, 10)
+	params.Body = &models.UpdateSpace{}
 	params.Body.Name = d.Get("name").(string)
-	params.Body.ParentID = &parentID
+	params.Body.ParentID = strconv.FormatInt(parentID, 10)
 
 	_, err = client.Space.UpdateSpace(params)
 	if err != nil {
@@ -127,7 +130,7 @@ func resourceChildSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceChildSpaceDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -135,7 +138,7 @@ func resourceChildSpaceDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	params := space.NewDeleteSpaceParams()
-	params.SpaceID = ID
+	params.SpaceID = strconv.FormatInt(ID, 10)
 
 	_, err = client.Space.DeleteSpace(params)
 	if err != nil {

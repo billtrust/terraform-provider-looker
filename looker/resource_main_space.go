@@ -3,6 +3,7 @@ package looker
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/billtrust/looker-go-sdk/client/content"
@@ -56,7 +57,7 @@ func resourceMainSpace() *schema.Resource {
 }
 
 func getRootSpace(d *schema.ResourceData, m interface{}, name string) (*models.Space, error) {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := space.NewSearchSpacesParams()
 	params.Name = &name
@@ -68,7 +69,7 @@ func getRootSpace(d *schema.ResourceData, m interface{}, name string) (*models.S
 	}
 
 	for _, item := range result.Payload {
-		if item.Name == name && item.ParentID == nil {
+		if *item.Name == name && &item.ParentID == nil {
 			return item, nil
 		}
 	}
@@ -81,10 +82,10 @@ func getRootSpace(d *schema.ResourceData, m interface{}, name string) (*models.S
 }
 
 func getSpaceByID(d *schema.ResourceData, m interface{}, id int64) (*models.Space, error) {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := space.NewSpaceParams()
-	params.SpaceID = id
+	params.SpaceID = strconv.FormatInt(id, 10)
 
 	result, err := client.Space.Space(params)
 	if err != nil {
@@ -96,7 +97,7 @@ func getSpaceByID(d *schema.ResourceData, m interface{}, id int64) (*models.Spac
 }
 
 func resourceMainSpaceCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	rootSpace, err := getRootSpace(d, m, d.Get("parent_space_name").(string))
 	if err != nil {
@@ -104,8 +105,8 @@ func resourceMainSpaceCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	params := space.NewCreateSpaceParams()
-	params.Body = &models.Space{}
-	params.Body.Name = d.Get("name").(string)
+	params.Body = &models.CreateSpace{}
+	params.Body.Name = d.Get("name").(*string)
 	params.Body.ParentID = &rootSpace.ID
 
 	result, err := client.Space.CreateSpace(params)
@@ -113,14 +114,14 @@ func resourceMainSpaceCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.SetId(getStringFromID(result.Payload.ID))
+	d.SetId(result.Payload.ID)
 
 	// TODO: should SetId happen before or after logic to update content_metadata?
 	contentMetadataParams := content.NewUpdateContentMetadataParams()
 	contentMetadataParams.ContentMetadataID = result.Payload.ContentMetadataID
 	contentMetadataParams.Body = &models.ContentMeta{}
 	inherits := d.Get("content_metadata_inherits").(bool)
-	contentMetadataParams.Body.Inherits = &inherits
+	contentMetadataParams.Body.Inherits = inherits
 
 	_, err = client.Content.UpdateContentMetadata(contentMetadataParams)
 	if err != nil {
@@ -131,7 +132,7 @@ func resourceMainSpaceCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMainSpaceRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -149,9 +150,9 @@ func resourceMainSpaceRead(d *schema.ResourceData, m interface{}) error {
 
 	d.Set("name", space.Name)
 	d.Set("content_metadata_id", getStringFromID(space.ContentMetadataID))
-	d.Set("parent_id", getStringFromID(*space.ParentID))
-
-	parentSpace, err := getSpaceByID(d, m, *space.ParentID)
+	d.Set("parent_id", space.ParentID)
+	var parentIDint, _ = strconv.ParseInt(space.ParentID, 10, 64)
+	parentSpace, err := getSpaceByID(d, m, parentIDint)
 	if err != nil {
 		return err
 	}
@@ -173,7 +174,7 @@ func resourceMainSpaceRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMainSpaceUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -186,10 +187,10 @@ func resourceMainSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	params := space.NewUpdateSpaceParams()
-	params.SpaceID = ID
-	params.Body = &models.Space{}
+	params.SpaceID = strconv.FormatInt(ID, 10)
+	params.Body = &models.UpdateSpace{}
 	params.Body.Name = d.Get("name").(string)
-	params.Body.ParentID = &rootSpace.ID
+	params.Body.ParentID = rootSpace.ID
 
 	_, err = client.Space.UpdateSpace(params)
 	if err != nil {
@@ -208,7 +209,7 @@ func resourceMainSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 		contentMetadataParams := content.NewUpdateContentMetadataParams()
 		contentMetadataParams.ContentMetadataID = contentMetadataID
 		contentMetadataParams.Body = &models.ContentMeta{}
-		contentMetadataParams.Body.Inherits = &inherits
+		contentMetadataParams.Body.Inherits = inherits
 		contentMetadataParams.Body.Name = d.Get("name").(string)
 		contentMetadataParams.Body.InheritingID = 0
 
@@ -224,7 +225,7 @@ func resourceMainSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceMainSpaceDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -232,7 +233,7 @@ func resourceMainSpaceDelete(d *schema.ResourceData, m interface{}) error {
 	}
 
 	params := space.NewDeleteSpaceParams()
-	params.SpaceID = ID
+	params.SpaceID = strconv.FormatInt(ID, 10)
 
 	_, err = client.Space.DeleteSpace(params)
 	if err != nil {

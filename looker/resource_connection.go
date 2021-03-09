@@ -134,7 +134,7 @@ func resourceConnection() *schema.Resource {
 }
 
 func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := connection.NewCreateConnectionParams()
 	params.Body = &models.DBConnection{}
@@ -165,7 +165,7 @@ func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := connection.NewConnectionParams()
 	params.ConnectionName = d.Id()
@@ -200,7 +200,7 @@ func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := connection.NewUpdateConnectionParams()
 	params.ConnectionName = d.Get("name").(string)
@@ -230,7 +230,7 @@ func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceConnectionDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := connection.NewDeleteConnectionParams()
 	params.ConnectionName = d.Id()
@@ -246,7 +246,7 @@ func resourceConnectionDelete(d *schema.ResourceData, m interface{}) error {
 func resourceConnectionExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := connection.NewConnectionParams()
 	params.ConnectionName = d.Id()

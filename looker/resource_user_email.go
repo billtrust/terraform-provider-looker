@@ -35,7 +35,7 @@ func resourceUserEmail() *schema.Resource {
 }
 
 func resourceUserEmailCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := user.NewCreateUserCredentialsEmailParams()
 
@@ -64,7 +64,7 @@ func resourceUserEmailCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserEmailRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -89,7 +89,7 @@ func resourceUserEmailRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserEmailUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -110,7 +110,7 @@ func resourceUserEmailUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserEmailDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -131,7 +131,7 @@ func resourceUserEmailDelete(d *schema.ResourceData, m interface{}) error {
 func resourceUserEmailExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {

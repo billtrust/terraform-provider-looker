@@ -34,7 +34,7 @@ func resourceGitDeployKey() *schema.Resource {
 }
 
 func resourceGitDeployKeyCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	err := updateSession(client, "dev")
 	if err != nil {
@@ -56,7 +56,7 @@ func resourceGitDeployKeyCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceGitDeployKeyRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	err := updateSession(client, "dev")
 	if err != nil {
@@ -95,7 +95,7 @@ func resourceGitDeployKeyDelete(d *schema.ResourceData, m interface{}) error {
 func resourceGitDeployKeyExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	// TODO Not sure if we should always set session to "dev" instead of "production" when checking if it exists? will dev always show all dev+prod projects?
 	err := updateSession(client, "dev")

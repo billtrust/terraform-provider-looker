@@ -40,7 +40,7 @@ func resourceUserAttribute() *schema.Resource {
 }
 
 func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	params := user_attribute.NewCreateUserAttributeParams()
 	params.Body = &models.UserAttribute{}
@@ -59,7 +59,7 @@ func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -86,7 +86,7 @@ func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -109,7 +109,7 @@ func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAttributeDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -130,7 +130,7 @@ func resourceUserAttributeDelete(d *schema.ResourceData, m interface{}) error {
 func resourceUserAttributeExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {

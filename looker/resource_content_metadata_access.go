@@ -3,6 +3,7 @@ package looker
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,13 +52,13 @@ func resourceContentMetadataAccess() *schema.Resource {
 }
 
 func getContentMetadataAccess(m interface{}, contentMetadataID int64, groupID int64) (*models.ContentMetaGroupUser, error) {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
-	params := content.NewAllContentMetadataAccesssParams()
+	params := content.NewAllContentMetadataAccessesParams()
 	params.SetTimeout(time.Minute * 5)
-	params.ContentMetadataID = &contentMetadataID
+	params.ContentMetadataID = contentMetadataID
 
-	result, err := client.Content.AllContentMetadataAccesss(params)
+	result, err := client.Content.AllContentMetadataAccesses(params)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func getContentMetadataAccess(m interface{}, contentMetadataID int64, groupID in
 }
 
 func resourceContentMetadataAccessCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	groupID, err := getIDFromString(d.Get("group_id").(string))
 	if err != nil {
@@ -87,7 +88,7 @@ func resourceContentMetadataAccessCreate(d *schema.ResourceData, m interface{}) 
 	params := content.NewCreateContentMetadataAccessParams()
 	params.SetTimeout(time.Minute * 5)
 	params.Body = &models.ContentMetaGroupUser{}
-	params.Body.ContentMetadataID = contentMetadataID
+	params.Body.ContentMetadataID = strconv.FormatInt(contentMetadataID, 10)
 	params.Body.GroupID = groupID
 	params.Body.PermissionType = d.Get("permission_type").(string)
 
@@ -102,9 +103,9 @@ func resourceContentMetadataAccessCreate(d *schema.ResourceData, m interface{}) 
 			return err
 		}
 
-		d.SetId(getStringFromID(access.ContentMetadataID) + ":" + getStringFromID(access.GroupID))
+		d.SetId(access.ContentMetadataID + ":" + getStringFromID(access.GroupID))
 	} else {
-		d.SetId(getStringFromID(result.Payload.ContentMetadataID) + ":" + getStringFromID(result.Payload.GroupID))
+		d.SetId(result.Payload.ContentMetadataID + ":" + getStringFromID(result.Payload.GroupID))
 	}
 
 	return resourceContentMetadataAccessRead(d, m)
@@ -138,9 +139,9 @@ func resourceContentMetadataAccessRead(d *schema.ResourceData, m interface{}) er
 		return err
 	}
 
-	d.Set("content_metadata_access_id", getStringFromID(access.ID))
+	d.Set("content_metadata_access_id", access.ID)
 	d.Set("group_id", getStringFromID(access.GroupID))
-	d.Set("content_metadata_id", getStringFromID(access.ContentMetadataID))
+	d.Set("content_metadata_id", access.ContentMetadataID)
 	d.Set("permission_type", access.PermissionType)
 
 	return nil
@@ -174,10 +175,11 @@ func resourceContentMetadataAccessDelete(d *schema.ResourceData, m interface{}) 
 		return err
 	}
 
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 	params := content.NewDeleteContentMetadataAccessParams()
 	params.SetTimeout(time.Minute * 5)
-	params.ContentMetadataAccessID = access.ID
+	var accessIDStr, _ = strconv.ParseInt(access.ID, 10, 32)
+	params.ContentMetadataAccessID = accessIDStr
 
 	_, err = client.Content.DeleteContentMetadataAccess(params)
 	if err != nil {

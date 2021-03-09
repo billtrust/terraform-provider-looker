@@ -35,7 +35,7 @@ func resourceUserAPIKey() *schema.Resource {
 }
 
 func resourceUserAPIKeyCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	sUserID := d.Get("user_id").(string)
 
@@ -60,7 +60,7 @@ func resourceUserAPIKeyCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAPIKeyRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	id := strings.Split(d.Id(), ":")
 	if len(id) != 2 {
@@ -100,7 +100,7 @@ func resourceUserAPIKeyRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAPIKeyDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	id := strings.Split(d.Id(), ":")
 	if len(id) != 2 {
@@ -135,7 +135,7 @@ func resourceUserAPIKeyDelete(d *schema.ResourceData, m interface{}) error {
 func resourceUserAPIKeyExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	id := strings.Split(d.Id(), ":")
 	if len(id) != 2 {

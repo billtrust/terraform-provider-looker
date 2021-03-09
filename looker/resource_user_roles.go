@@ -34,7 +34,7 @@ func resourceUserRoles() *schema.Resource {
 }
 
 func resourceUserRolesCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	sUserID := d.Get("user_id").(string)
 
@@ -70,7 +70,7 @@ func resourceUserRolesCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserRolesRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -107,7 +107,7 @@ func resourceUserRolesUpdate(d *schema.ResourceData, m interface{}) error {
 
 func resourceUserRolesDelete(d *schema.ResourceData, m interface{}) error {
 	// TODO: Delete really just removes all the roles from the user.  Is this the correct way to implement delete in this case?
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -129,7 +129,7 @@ func resourceUserRolesDelete(d *schema.ResourceData, m interface{}) error {
 func resourceUserRolesExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	userID, err := getIDFromString(d.Id())
 	if err != nil {

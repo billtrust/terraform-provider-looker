@@ -35,7 +35,7 @@ func resourceRoleGroups() *schema.Resource {
 }
 
 func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Get("role_id").(string))
 	if err != nil {
@@ -67,7 +67,7 @@ func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -93,7 +93,7 @@ func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -123,7 +123,7 @@ func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleGroupsDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -145,7 +145,7 @@ func resourceRoleGroupsDelete(d *schema.ResourceData, m interface{}) error {
 func resourceRoleGroupsExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {

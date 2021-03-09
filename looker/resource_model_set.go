@@ -36,7 +36,7 @@ func resourceModelSet() *schema.Resource {
 }
 
 func resourceModelSetCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	var modelNames []string
 	for _, modelName := range d.Get("models").(*schema.Set).List() {
@@ -59,7 +59,7 @@ func resourceModelSetCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceModelSetRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -85,7 +85,7 @@ func resourceModelSetRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -112,7 +112,7 @@ func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceModelSetDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {
@@ -133,7 +133,7 @@ func resourceModelSetDelete(d *schema.ResourceData, m interface{}) error {
 func resourceModelSetExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
 	// Exists - This is called to verify a resource still exists. It is called prior to Read,
 	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.Looker)
 
 	ID, err := getIDFromString(d.Id())
 	if err != nil {

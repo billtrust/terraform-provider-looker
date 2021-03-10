@@ -104,7 +104,7 @@ func resourceConnection() *schema.Resource {
 			},
 			"schema": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"tmp_db_name": &schema.Schema{
 				Type:     schema.TypeString,

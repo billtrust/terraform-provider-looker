@@ -33,58 +33,76 @@ func resourceTheme() *schema.Resource {
 				Required: true,
 			},
 			"begin_at": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"end_at": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"background_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"color_collection_id": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"font_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"font_family": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"font_source": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"info_button_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"primary_button_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"show_filters_bar": &schema.Schema{
-				Type: schema.TypeBool,
+				Type:     schema.TypeBool,
+				Required: true,
 			},
 			"show_title": &schema.Schema{
-				Type: schema.TypeBool,
+				Type:     schema.TypeBool,
+				Required: true,
 			},
 			"text_tile_text_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"tile_background_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"tile_text_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"title_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"warn_button_color": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"tile_title_alignment": &schema.Schema{
-				Type: schema.TypeString,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"tile_shadow": &schema.Schema{
-				Type: schema.TypeBool,
+				Type:     schema.TypeBool,
+				Required: true,
 			},
 		},
 	}

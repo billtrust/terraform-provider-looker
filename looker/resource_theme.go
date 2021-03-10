@@ -98,7 +98,7 @@ func getThemeByID(d *schema.ResourceData, m interface{}, id int64) (*models.Them
 
 	result, err := client.Theme.Theme(params)
 	if err != nil {
-		log.Printf("[ERROR] Error while getting space by id, %s", err.Error())
+		log.Printf("[ERROR] Error while getting theme by id, %s", err.Error())
 		return nil, err
 	}
 
@@ -243,7 +243,7 @@ func resourceThemeUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	return resourceMainSpaceRead(d, m)
+	return resourceThemeRead(d, m)
 }
 
 func resourceThemeDelete(d *schema.ResourceData, m interface{}) error {

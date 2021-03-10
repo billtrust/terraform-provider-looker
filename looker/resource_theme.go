@@ -24,7 +24,7 @@ func resourceTheme() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"theme_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -169,7 +169,7 @@ func resourceThemeRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	d.Set("id", theme.ID)
+	d.Set("theme_id", theme.ID)
 	d.Set("name", theme.Name)
 	d.Set("begin_at", theme.BeginAt)
 	d.Set("end_at", theme.EndAt)

@@ -75,6 +75,33 @@ func resourceConnection() *schema.Resource {
 					return true
 				},
 			},
+			"certificate": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Same deal as `password` field above - the certificate
+				// is not returned in the API response, so there's no
+				// sensible way to diff.
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if d.Id() == "" {
+						return false
+					}
+					return true
+				},
+				Sensitive: true,
+			},
+			"certificate_file_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Certificate file type also not returned in GET response.
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if d.Id() == "" {
+						return false
+					}
+					return true
+				},
+			},
 			"schema": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -113,6 +140,8 @@ func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Database = d.Get("database").(string)
 	params.Body.Username = d.Get("username").(string)
 	params.Body.Password = d.Get("password").(string)
+	params.Body.Certificate = d.Get("certificate").(string)
+	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
@@ -152,6 +181,8 @@ func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("database", result.Payload.Database)
 	d.Set("username", result.Payload.Username)
 	d.Set("password", result.Payload.Password)
+	d.Set("certificate", result.Payload.Certificate)
+	d.Set("certificate_file_type", result.Payload.FileType)
 	d.Set("schema", result.Payload.Schema)
 	d.Set("jdbc_additional_params", result.Payload.JdbcAdditionalParams)
 	d.Set("ssl", result.Payload.Ssl)
@@ -174,6 +205,8 @@ func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Database = d.Get("database").(string)
 	params.Body.Username = d.Get("username").(string)
 	params.Body.Password = d.Get("password").(string)
+	params.Body.Certificate = d.Get("certificate").(string)
+	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)

@@ -106,6 +106,10 @@ func resourceConnection() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"tmp_db_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"jdbc_additional_params": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -143,6 +147,7 @@ func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Certificate = d.Get("certificate").(string)
 	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
+	params.Body.TmpDbName = d.Get("tmp_db_name").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
 	params.Body.DbTimezone = d.Get("db_timezone").(string)
@@ -184,6 +189,7 @@ func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("certificate", result.Payload.Certificate)
 	d.Set("certificate_file_type", result.Payload.FileType)
 	d.Set("schema", result.Payload.Schema)
+	d.Set("tmp_db_name", result.Payload.TmpDbName)
 	d.Set("jdbc_additional_params", result.Payload.JdbcAdditionalParams)
 	d.Set("ssl", result.Payload.Ssl)
 	d.Set("db_timezone", result.Payload.DbTimezone)
@@ -208,6 +214,7 @@ func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Certificate = d.Get("certificate").(string)
 	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
+	params.Body.TmpDbName = d.Get("tmp_db_name").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
 	params.Body.DbTimezone = d.Get("db_timezone").(string)

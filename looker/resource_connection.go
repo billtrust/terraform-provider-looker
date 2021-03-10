@@ -74,6 +74,7 @@ func resourceConnection() *schema.Resource {
 					// TODO: to handle this, DiffSupressFunc always say this field is not changed to handle this.  And if the user changes the field, ForceNew should create a new one
 					return true
 				},
+				Sensitive: true,
 			},
 			"certificate": &schema.Schema{
 				Type:     schema.TypeString,

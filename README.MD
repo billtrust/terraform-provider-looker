@@ -27,7 +27,7 @@
 
 * **looker_child_space** - space configuration for a space whose parent we have created
 
-* **looker_connection** - This is mostly implemented to support the snowflake database. More work can be done to suport other database backends.
+* **looker_connection** - This is mostly implemented to support the snowflake database. Google BigQuery is also supported. More work can be done to suport other database backends.
 
 * **looker_project** - sets up a base project with just the name
 

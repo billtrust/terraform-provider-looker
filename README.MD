@@ -170,6 +170,7 @@ resource "looker_content_metadata_access" "embed_groups_space_access" {
 ```
 
 ```
+# snowflake connection
 resource "looker_connection" "snowflake_connection" {
   name                   = "snowflake"
   dialect_name           = "snowflake"
@@ -183,6 +184,20 @@ resource "looker_connection" "snowflake_connection" {
   ssl                    = true
   db_timezone            = "UTC"
   query_timezone         = "UTC"
+}
+```
+
+```
+# BigQuery connection
+resource "looker_connection" "bq_connection" {
+  name                   = "bq"
+  dialect_name           = "bigquery_standard_sql"
+  host                   = "${var.gcp_project_id}"
+  database               = "MY_DATASET"
+  tmp_db_name            = "BQ_SCRATCH"
+  username               = "${var.bq_service_account}"
+  certificate            = "${var.bq_service_account_certificate_json}"
+  certificate_file_type  = ".json"
 }
 ```
 

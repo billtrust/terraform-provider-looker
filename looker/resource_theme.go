@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/theme"
-	"github.com/billtrust/looker-go-sdk/models"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/theme"
+	"github.com/Foxtel-DnA/looker-go-sdk/models"
 	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform/helper/schema"
 )

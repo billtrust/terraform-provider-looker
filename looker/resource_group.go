@@ -3,11 +3,11 @@ package looker
 import (
 	"strings"
 
-	"github.com/billtrust/looker-go-sdk/client/group"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/group"
 
-	"github.com/billtrust/looker-go-sdk/models"
+	"github.com/Foxtel-DnA/looker-go-sdk/models"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

@@ -3,9 +3,9 @@ package looker
 import (
 	"strings"
 
-	"github.com/billtrust/looker-go-sdk/client/project"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/project"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/billtrust/looker-go-sdk/client/content"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/content"
 
-	"github.com/billtrust/looker-go-sdk/client/space"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/space"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/models"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
+	"github.com/Foxtel-DnA/looker-go-sdk/models"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

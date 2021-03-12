@@ -3,8 +3,8 @@ package looker
 import (
 	"log"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/api_auth"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/api_auth"
 
 	"github.com/go-openapi/strfmt"
 

@@ -23,7 +23,7 @@ uninstall : build/TARGET
 	rm -f $(shell cat build/TARGET)/$(EXE)
 
 go.mod :
-	go mod init github.com/billtrust/terraform-provider-looker
+	go mod init github.com/Foxtel-DnA/terraform-provider-looker
 
 reinit-module : clean-module go.mod
 

@@ -64,7 +64,7 @@ func resourceConnection() *schema.Resource {
 			},
 			"password": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 					if d.Id() == "" {
@@ -74,10 +74,42 @@ func resourceConnection() *schema.Resource {
 					// TODO: to handle this, DiffSupressFunc always say this field is not changed to handle this.  And if the user changes the field, ForceNew should create a new one
 					return true
 				},
+				Sensitive: true,
+			},
+			"certificate": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Same deal as `password` field above - the certificate
+				// is not returned in the API response, so there's no
+				// sensible way to diff.
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if d.Id() == "" {
+						return false
+					}
+					return true
+				},
+				Sensitive: true,
+			},
+			"certificate_file_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				// Certificate file type also not returned in GET response.
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if d.Id() == "" {
+						return false
+					}
+					return true
+				},
 			},
 			"schema": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+			},
+			"tmp_db_name": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"jdbc_additional_params": &schema.Schema{
 				Type:     schema.TypeString,
@@ -113,7 +145,10 @@ func resourceConnectionCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Database = d.Get("database").(string)
 	params.Body.Username = d.Get("username").(string)
 	params.Body.Password = d.Get("password").(string)
+	params.Body.Certificate = d.Get("certificate").(string)
+	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
+	params.Body.TmpDbName = d.Get("tmp_db_name").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
 	params.Body.DbTimezone = d.Get("db_timezone").(string)
@@ -152,7 +187,10 @@ func resourceConnectionRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("database", result.Payload.Database)
 	d.Set("username", result.Payload.Username)
 	d.Set("password", result.Payload.Password)
+	d.Set("certificate", result.Payload.Certificate)
+	d.Set("certificate_file_type", result.Payload.FileType)
 	d.Set("schema", result.Payload.Schema)
+	d.Set("tmp_db_name", result.Payload.TmpDbName)
 	d.Set("jdbc_additional_params", result.Payload.JdbcAdditionalParams)
 	d.Set("ssl", result.Payload.Ssl)
 	d.Set("db_timezone", result.Payload.DbTimezone)
@@ -174,7 +212,10 @@ func resourceConnectionUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body.Database = d.Get("database").(string)
 	params.Body.Username = d.Get("username").(string)
 	params.Body.Password = d.Get("password").(string)
+	params.Body.Certificate = d.Get("certificate").(string)
+	params.Body.FileType = d.Get("certificate_file_type").(string)
 	params.Body.Schema = d.Get("schema").(string)
+	params.Body.TmpDbName = d.Get("tmp_db_name").(string)
 	params.Body.JdbcAdditionalParams = d.Get("jdbc_additional_params").(string)
 	params.Body.Ssl = d.Get("ssl").(bool)
 	params.Body.DbTimezone = d.Get("db_timezone").(string)

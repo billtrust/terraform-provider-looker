@@ -3,8 +3,8 @@ package looker
 import (
 	"log"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/api_auth"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/api_auth"
 
 	"github.com/go-openapi/strfmt"
 
@@ -54,6 +54,7 @@ func Provider() terraform.ResourceProvider {
 			"looker_git_deploy_key":          resourceGitDeployKey(),
 			"looker_project_git_details":     resourceProjectGitDetails(),
 			"looker_user_attribute":          resourceUserAttribute(),
+			"looker_theme":                   resourceTheme(),
 		},
 
 		ConfigureFunc: providerConfigure,

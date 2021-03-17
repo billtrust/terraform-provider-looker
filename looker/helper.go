@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"strconv"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/role"
-	"github.com/billtrust/looker-go-sdk/client/session"
-	"github.com/billtrust/looker-go-sdk/models"
+	apiclient "github.com/Foxtel-DnA/looker-go-sdk/client"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/role"
+	"github.com/Foxtel-DnA/looker-go-sdk/client/session"
+	"github.com/Foxtel-DnA/looker-go-sdk/models"
 	"github.com/hashicorp/terraform/helper/schema"
 )
 
-func updateSession(client *apiclient.LookerAPI30Reference, mode string) error {
+func updateSession(client *apiclient.Looker, mode string) error {
 	params := session.NewUpdateSessionParams()
 	params.Body = &models.APISession{}
 	params.Body.WorkspaceID = mode
@@ -32,7 +32,7 @@ func getStringArray(d *schema.ResourceData, key string) []string {
 	return scope
 }
 
-func getRoleIds(roleNames []string, client *apiclient.LookerAPI30Reference) ([]int64, error) {
+func getRoleIds(roleNames []string, client *apiclient.Looker) ([]int64, error) {
 	rolesOK, err := client.Role.AllRoles(role.NewAllRolesParams())
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func getRoleIds(roleNames []string, client *apiclient.LookerAPI30Reference) ([]i
 	return roleIds, nil
 }
 
-func getRoleNames(roleIDs []int64, client *apiclient.LookerAPI30Reference) ([]string, error) {
+func getRoleNames(roleIDs []int64, client *apiclient.Looker) ([]string, error) {
 	rolesOK, err := client.Role.AllRoles(role.NewAllRolesParams())
 	if err != nil {
 		return nil, err

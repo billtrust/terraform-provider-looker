@@ -229,6 +229,7 @@ func resourceThemeUpdate(d *schema.ResourceData, m interface{}) error {
 	params := theme.NewUpdateThemeParams()
 	params.ThemeID = strconv.FormatInt(ID, 10)
 	params.Body = &models.Theme{}
+	params.Body.Settings = &models.ThemeSettings{}
 	params.Body.Name = d.Get("name").(string)
 
 	beginAt, err := strfmt.ParseDateTime(d.Get("begin_at").(string))

@@ -133,6 +133,7 @@ func resourceThemeCreate(d *schema.ResourceData, m interface{}) error {
 	// Set theme params
 	params := theme.NewCreateThemeParams()
 	params.Body = &models.Theme{}
+	params.Body.Settings = &models.ThemeSettings{}
 	params.Body.Name = d.Get("name").(string)
 
 	beginAt, err := strfmt.ParseDateTime(d.Get("begin_at").(string))

@@ -44,6 +44,10 @@ func resourceTheme() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"base_font_size": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"color_collection_id": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -146,6 +150,7 @@ func resourceThemeCreate(d *schema.ResourceData, m interface{}) error {
 	params.Body.EndAt = endAt
 
 	params.Body.Settings.BackgroundColor = d.Get("background_color").(string)
+	params.Body.Settings.BaseFontSize = d.Get("base_font_size").(string)
 	params.Body.Settings.ColorCollectionID = d.Get("color_collection_id").(string)
 	params.Body.Settings.FontColor = d.Get("font_color").(string)
 	params.Body.Settings.FontFamily = d.Get("font_family").(string)
@@ -193,6 +198,7 @@ func resourceThemeRead(d *schema.ResourceData, m interface{}) error {
 	d.Set("end_at", theme.EndAt)
 
 	d.Set("background_color", theme.Settings.BackgroundColor)
+	d.Set("base_font_size", theme.Settings.BaseFontSize)
 	d.Set("color_collection_id", theme.Settings.ColorCollectionID)
 	d.Set("font_color", theme.Settings.FontColor)
 	d.Set("font_family", theme.Settings.FontFamily)
@@ -240,6 +246,7 @@ func resourceThemeUpdate(d *schema.ResourceData, m interface{}) error {
 	params.Body.EndAt = endAt
 
 	params.Body.Settings.BackgroundColor = d.Get("background_color").(string)
+	params.Body.Settings.BaseFontSize = d.Get("base_font_size").(string)
 	params.Body.Settings.ColorCollectionID = d.Get("color_collection_id").(string)
 	params.Body.Settings.FontColor = d.Get("font_color").(string)
 	params.Body.Settings.FontFamily = d.Get("font_family").(string)

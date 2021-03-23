@@ -62,7 +62,7 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	transport := httptransport.New(d.Get("base_url").(string), "/api/3.0/", nil)
+	transport := httptransport.New(d.Get("base_url").(string), "/api/3.1/", nil)
 	client := apiclient.New(transport, strfmt.Default)
 
 	clientID := d.Get("client_id").(string)

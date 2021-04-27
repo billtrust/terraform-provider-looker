@@ -55,6 +55,7 @@ func Provider() terraform.ResourceProvider {
 			"looker_project_git_details":     resourceProjectGitDetails(),
 			"looker_user_attribute":          resourceUserAttribute(),
 			"looker_theme":                   resourceTheme(),
+			"looker_colorcollection":         resourceColorCollection(),
 		},
 
 		ConfigureFunc: providerConfigure,

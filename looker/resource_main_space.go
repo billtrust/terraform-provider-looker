@@ -202,13 +202,11 @@ func resourceMainSpaceUpdate(d *schema.ResourceData, m interface{}) error {
 			return err
 		}
 
-		inherits := false
-
 		contentMetadataInherts := d.Get("content_metadata_inherits").(bool)
 		contentMetadataParams := content.NewUpdateContentMetadataParams()
 		contentMetadataParams.ContentMetadataID = contentMetadataID
 		contentMetadataParams.Body = &models.ContentMeta{}
-		contentMetadataParams.Body.Inherits = &inherits
+		contentMetadataParams.Body.Inherits = &contentMetadataInherts
 		contentMetadataParams.Body.Name = d.Get("name").(string)
 		contentMetadataParams.Body.InheritingID = 0
 

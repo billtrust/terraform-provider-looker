@@ -1,5 +1,29 @@
 # Looker Terraform Provider
 
+
+## Requirements
+
+* [Terraform](https://www.terraform.io) <= 0.11
+* [Go](https://golang.org) 1.12+ or [Docker](https://www.docker.com) (to build the provider)
+
+### Compiling
+
+As most terraform providers, this is built using [Go](https://golang.org), so you'll need it in your system.
+We also provide a Dockerfile that allows us to compile the provider in a containerized environment.
+
+To compile the provider run the following:
+
+```shell
+docker build -t terraform-provider-looker -f Dockerfile .
+docker run -it -v $(pwd):/go/src/github.com/billtrust/terraform-provider-looker terraform-provider-looker bash -c "go get && rm -rf bin && mkdir bin && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/terraform-provider-looker_v1.X.Y"
+```
+
+Please not that the above provided values will create a provider compiled for `linux` using the `amd64` architecture. For more architectures and OS options, please read [this](https://gist.github.com/asukakenji/f15ba7e588ac42795f421b48b8aede63)
+
+### Installation
+
+Like all other Terraform providers, the executable binary needs to be available for the main TF executable to run. Please follow [this intructions](https://www.terraform.io/docs/plugins/basics.html#installing-plugins) to get it set up.
+
 ## Resources
 
 * **looker_user**

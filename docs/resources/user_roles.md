@@ -14,8 +14,8 @@ description: |-
 
 ```terraform
 resource "looker_user_roles" "user_roles" {
-  user_id    = looker_user.user.id
-  role_names = ["Admin"]
+  user_id  = looker_user.user.id
+  role_ids = [looker_role.role.id]
 }
 ```
 
@@ -24,7 +24,7 @@ resource "looker_user_roles" "user_roles" {
 
 ### Required
 
-- **role_names** (Set of String)
+- **role_ids** (Set of Number)
 - **user_id** (String)
 
 ### Optional

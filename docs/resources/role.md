@@ -13,8 +13,8 @@ description: |-
 ## Example Usage
 
 ```terraform
-resource "looker_role" "embed_role" {
-  name              = "Embed User Role"
+resource "looker_role" "role" {
+  name              = "Role"
   permission_set_id = looker_permission_set.embed_permission_set.id
   model_set_id      = looker_model_set.model_set.id
 }
@@ -25,9 +25,9 @@ resource "looker_role" "embed_role" {
 
 ### Required
 
-- **model_set_id** (String)
+- **model_set_id** (Number)
 - **name** (String)
-- **permission_set_id** (String)
+- **permission_set_id** (Number)
 
 ### Optional
 

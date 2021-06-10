@@ -1,15 +1,9 @@
 package looker
 
 import (
-	"log"
-
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/api_auth"
-
-	"github.com/go-openapi/strfmt"
-
-	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/looker-open-source/sdk-codegen/go/rtl"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func Provider() *schema.Provider {
@@ -35,23 +29,14 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"looker_user":                    resourceUser(),
-			"looker_user_email":              resourceUserEmail(),
-			"looker_user_roles":              resourceUserRoles(),
-			"looker_user_api_key":            resourceUserAPIKey(),
-			"looker_permission_set":          resourcePermissionSet(),
-			"looker_model_set":               resourceModelSet(),
-			"looker_group":                   resourceGroup(),
-			"looker_role":                    resourceRole(),
-			"looker_role_groups":             resourceRoleGroups(),
-			"looker_main_space":              resourceMainSpace(),
-			"looker_child_space":             resourceChildSpace(),
-			"looker_content_metadata_access": resourceContentMetadataAccess(),
-			"looker_connection":              resourceConnection(),
-			"looker_project":                 resourceProject(),
-			"looker_git_deploy_key":          resourceGitDeployKey(),
-			"looker_project_git_details":     resourceProjectGitDetails(),
-			"looker_user_attribute":          resourceUserAttribute(),
+			"looker_user":           resourceUser(),
+			"looker_user_roles":     resourceUserRoles(),
+			"looker_permission_set": resourcePermissionSet(),
+			"looker_model_set":      resourceModelSet(),
+			"looker_group":          resourceGroup(),
+			"looker_role":           resourceRole(),
+			"looker_role_groups":    resourceRoleGroups(),
+			"looker_user_attribute": resourceUserAttribute(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -59,29 +44,18 @@ func Provider() *schema.Provider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	transport := httptransport.New(d.Get("base_url").(string), "/api/3.0/", nil)
-	client := apiclient.New(transport, strfmt.Default)
-
+	baseUrl := d.Get("base_url").(string)
 	clientID := d.Get("client_id").(string)
 	clientSecret := d.Get("client_secret").(string)
 
-	pd := api_auth.NewLoginParams()
-	pd.ClientID = &clientID
-	pd.ClientSecret = &clientSecret
-
-	resp, err := client.APIAuth.Login(pd)
-
-	if err != nil {
-		return nil, err
+	apiSettings := rtl.ApiSettings{
+		BaseUrl:      baseUrl,
+		ClientId:     clientID,
+		ClientSecret: clientSecret,
+		ApiVersion:   "4.0",
 	}
+	authSession := rtl.NewAuthSession(apiSettings)
+	client := apiclient.NewLookerSDK(authSession)
 
-	token := resp.Payload.AccessToken
-	log.Println("[INFO] token " + token)
-
-	authInfoWriter := httptransport.APIKeyAuth("Authorization", "header", "token "+token)
-	transport.DefaultAuthentication = authInfoWriter
-
-	authClient := apiclient.New(transport, strfmt.Default)
-
-	return authClient, nil
+	return client, nil
 }

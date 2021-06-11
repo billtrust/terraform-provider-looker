@@ -1,12 +1,10 @@
 package looker
 
 import (
-	"strings"
+	"strconv"
 
-	"github.com/billtrust/looker-go-sdk/client/role"
-
-	apiclient "github.com/billtrust/looker-go-sdk/client"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func resourceRoleGroups() *schema.Resource {
@@ -15,7 +13,6 @@ func resourceRoleGroups() *schema.Resource {
 		Read:   resourceRoleGroupsRead,
 		Update: resourceRoleGroupsUpdate,
 		Delete: resourceRoleGroupsDelete,
-		Exists: resourceRoleGroupsExists,
 		Importer: &schema.ResourceImporter{
 			State: resourceRoleGroupsImport,
 		},
@@ -35,61 +32,58 @@ func resourceRoleGroups() *schema.Resource {
 }
 
 func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Get("role_id").(string))
+	roleIDString := d.Get("role_id").(string)
+
+	roleID, err := strconv.ParseInt(roleIDString, 10, 64)
 	if err != nil {
 		return err
 	}
 
 	var groupIDs []int64
-	for _, sGroupID := range d.Get("group_ids").(*schema.Set).List() {
-		iGroupID, err := getIDFromString(sGroupID.(string))
+	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
+		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
 		if err != nil {
 			return err
 		}
-
-		groupIDs = append(groupIDs, iGroupID)
+		groupIDs = append(groupIDs, gID)
 	}
 
-	params := role.NewSetRoleGroupsParams()
-	params.RoleID = ID
-	params.Body = groupIDs
-
-	_, err = client.Role.SetRoleGroups(params)
+	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(d.Get("role_id").(string))
+	d.SetId(roleIDString)
 
 	return resourceRoleGroupsRead(d, m)
 }
 
 func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewRoleGroupsParams()
-	params.RoleID = ID
-
-	result, err := client.Role.RoleGroups(params)
+	groups, err := client.RoleGroups(roleID, "", nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	if err = d.Set("role_id", ID); err != nil {
+	var groupIDs []string
+	for _, group := range groups {
+		gID := strconv.Itoa(int(*group.Id))
+		groupIDs = append(groupIDs, gID)
+	}
+
+	if err = d.Set("role_id", strconv.Itoa(int(roleID))); err != nil {
 		return err
 	}
-	if err = d.Set("group_ids", result.Payload); err != nil {
+
+	if err = d.Set("group_ids", groupIDs); err != nil {
 		return err
 	}
 
@@ -97,28 +91,23 @@ func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
 	var groupIDs []int64
-	for _, sGroupID := range d.Get("group_ids").(*schema.Set).List() {
-		iGroupID, err := getIDFromString(sGroupID.(string))
+	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
+		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
 		if err != nil {
 			return err
 		}
-
-		groupIDs = append(groupIDs, iGroupID)
+		groupIDs = append(groupIDs, gID)
 	}
 
-	params := role.NewSetRoleGroupsParams()
-	params.RoleID = ID
-	params.Body = groupIDs
-
-	_, err = client.Role.SetRoleGroups(params)
+	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}
@@ -127,48 +116,20 @@ func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleGroupsDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewSetRoleGroupsParams()
-	params.RoleID = ID
-	params.Body = []int64{}
-
-	_, err = client.Role.SetRoleGroups(params)
+	groupIDs := []int64{}
+	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func resourceRoleGroupsExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
-	// Exists - This is called to verify a resource still exists. It is called prior to Read,
-	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
-
-	ID, err := getIDFromString(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	params := role.NewRoleGroupsParams()
-	params.RoleID = ID
-
-	_, err = client.Role.RoleGroups(params)
-	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func resourceRoleGroupsImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {

@@ -1,13 +1,10 @@
 package looker
 
 import (
-	"strings"
+	"strconv"
 
-	"github.com/billtrust/looker-go-sdk/client/user_attribute"
-
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func resourceUserAttribute() *schema.Resource {
@@ -16,7 +13,6 @@ func resourceUserAttribute() *schema.Resource {
 		Read:   resourceUserAttributeRead,
 		Update: resourceUserAttributeUpdate,
 		Delete: resourceUserAttributeDelete,
-		Exists: resourceUserAttributeExists,
 		Importer: &schema.ResourceImporter{
 			State: resourceUserAttributeImport,
 		},
@@ -29,7 +25,6 @@ func resourceUserAttribute() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				// TODO: hard code to only allow "advanced_filter_string" for now
 			},
 			"label": {
 				Type:     schema.TypeString,
@@ -40,51 +35,48 @@ func resourceUserAttribute() *schema.Resource {
 }
 
 func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
+	userAttributeName := d.Get("name").(string)
+	userAttributeLabel := d.Get("label").(string)
+	userAttributeType := d.Get("type").(string)
 
-	params := user_attribute.NewCreateUserAttributeParams()
-	params.Body = &models.UserAttribute{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.Type = d.Get("type").(string)
-	params.Body.Label = d.Get("label").(string)
+	writeUserAttribute := apiclient.WriteUserAttribute{
+		Name:  &userAttributeName,
+		Label: &userAttributeLabel,
+		Type:  &userAttributeType,
+	}
 
-	result, err := client.UserAttribute.CreateUserAttribute(params)
+	userAttribute, err := client.CreateUserAttribute(writeUserAttribute, "", nil)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(getStringFromID(result.Payload.ID))
+	userAttributeID := *userAttribute.Id
+	d.SetId(strconv.Itoa(int(userAttributeID)))
 
 	return resourceUserAttributeRead(d, m)
 }
 
 func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user_attribute.NewUserAttributeParams()
-	params.UserAttributeID = ID
-
-	result, err := client.UserAttribute.UserAttribute(params)
+	userAttribute, err := client.UserAttribute(userAttributeID, "", nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	if err = d.Set("name", result.Payload.Name); err != nil {
+	if err = d.Set("name", userAttribute.Name); err != nil {
 		return err
 	}
-	if err = d.Set("type", result.Payload.Type); err != nil {
+	if err = d.Set("type", userAttribute.Type); err != nil {
 		return err
 	}
-	if err = d.Set("label", result.Payload.Label); err != nil {
+	if err = d.Set("label", userAttribute.Label); err != nil {
 		return err
 	}
 
@@ -92,21 +84,24 @@ func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user_attribute.NewUpdateUserAttributeParams()
-	params.UserAttributeID = ID
-	params.Body = &models.UserAttribute{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.Type = d.Get("type").(string)
-	params.Body.Label = d.Get("label").(string)
+	userAttributeName := d.Get("name").(string)
+	userAttributeType := d.Get("type").(string)
+	userAttributeLabel := d.Get("type").(string)
 
-	_, err = client.UserAttribute.UpdateUserAttribute(params)
+	writeUserAttribute := apiclient.WriteUserAttribute{
+		Name:  &userAttributeName,
+		Label: &userAttributeLabel,
+		Type:  &userAttributeType,
+	}
+
+	_, err = client.UpdateUserAttribute(userAttributeID, writeUserAttribute, "", nil)
 	if err != nil {
 		return err
 	}
@@ -115,47 +110,19 @@ func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserAttributeDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user_attribute.NewDeleteUserAttributeParams()
-	params.UserAttributeID = ID
-
-	_, err = client.UserAttribute.DeleteUserAttribute(params)
+	_, err = client.DeleteUserAttribute(userAttributeID, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func resourceUserAttributeExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
-	// Exists - This is called to verify a resource still exists. It is called prior to Read,
-	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
-
-	ID, err := getIDFromString(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	params := user_attribute.NewUserAttributeParams()
-	params.UserAttributeID = ID
-
-	_, err = client.UserAttribute.UserAttribute(params)
-	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func resourceUserAttributeImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {

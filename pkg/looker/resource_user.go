@@ -1,12 +1,10 @@
 package looker
 
 import (
-	"strings"
+	"strconv"
 
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/client/user"
-	"github.com/billtrust/looker-go-sdk/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func resourceUser() *schema.Resource {
@@ -15,12 +13,14 @@ func resourceUser() *schema.Resource {
 		Read:   resourceUserRead,
 		Update: resourceUserUpdate,
 		Delete: resourceUserDelete,
-		Exists: resourceUserExists,
 		Importer: &schema.ResourceImporter{
 			State: resourceUserImport,
 		},
-
 		Schema: map[string]*schema.Schema{
+			"email": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"first_name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -34,47 +34,58 @@ func resourceUser() *schema.Resource {
 }
 
 func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
+	firstName := d.Get("first_name").(string)
+	lastName := d.Get("last_name").(string)
+	email := d.Get("email").(string)
 
-	params := user.NewCreateUserParams()
-	params.Body = &models.User{}
-	params.Body.FirstName = d.Get("first_name").(string)
-	params.Body.LastName = d.Get("last_name").(string)
+	writeUser := apiclient.WriteUser{
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
 
-	user, err := client.User.CreateUser(params)
+	user, err := client.CreateUser(writeUser, "", nil)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(getStringFromID(user.Payload.ID))
+	userID := *user.Id
+	d.SetId(strconv.Itoa(int(userID)))
+
+	writeCredentialsEmail := apiclient.WriteCredentialsEmail{
+		Email: &email,
+	}
+	_, err = client.CreateUserCredentialsEmail(userID, writeCredentialsEmail, "", nil)
+	if err != nil {
+		if _, err = client.DeleteUser(userID, nil); err != nil {
+			return err
+		}
+		return err
+	}
 
 	return resourceUserRead(d, m)
 }
 
 func resourceUserRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	userID, err := getIDFromString(d.Id())
+	userID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user.NewUserParams()
-	params.UserID = userID
-
-	user, err := client.User.User(params)
+	user, err := client.User(userID, "", nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	if err = d.Set("first_name", user.Payload.FirstName); err != nil {
+	if err = d.Set("email", user.Email); err != nil {
 		return err
 	}
-	if err = d.Set("last_name", user.Payload.LastName); err != nil {
+	if err = d.Set("first_name", user.FirstName); err != nil {
+		return err
+	}
+	if err = d.Set("last_name", user.LastName); err != nil {
 		return err
 	}
 
@@ -82,69 +93,54 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	userID, err := getIDFromString(d.Id())
+	userID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user.NewUpdateUserParams()
-	params.UserID = userID
-	params.Body = &models.User{}
-	params.Body.FirstName = d.Get("first_name").(string)
-	params.Body.LastName = d.Get("last_name").(string)
+	if d.HasChanges("first_name", "last_name") {
+		firstName := d.Get("first_name").(string)
+		lastName := d.Get("last_name").(string)
+		writeUser := apiclient.WriteUser{
+			FirstName: &firstName,
+			LastName:  &lastName,
+		}
+		_, err = client.UpdateUser(userID, writeUser, "", nil)
+		if err != nil {
+			return err
+		}
+	}
 
-	_, err = client.User.UpdateUser(params)
-	if err != nil {
-		return err
+	if d.HasChange("email") {
+		email := d.Get("email").(string)
+		writeCredentialsEmail := apiclient.WriteCredentialsEmail{
+			Email: &email,
+		}
+		_, err = client.UpdateUserCredentialsEmail(userID, writeCredentialsEmail, "", nil)
+		if err != nil {
+			return err
+		}
 	}
 
 	return resourceUserRead(d, m)
 }
 
 func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	userID, err := getIDFromString(d.Id())
+	userID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := user.NewDeleteUserParams()
-	params.UserID = userID
-
-	_, err = client.User.DeleteUser(params)
+	_, err = client.DeleteUser(userID, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func resourceUserExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
-	// Exists - This is called to verify a resource still exists. It is called prior to Read,
-	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
-
-	userID, err := getIDFromString(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	params := user.NewUserParams()
-	params.UserID = userID
-
-	_, err = client.User.User(params)
-	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func resourceUserImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {

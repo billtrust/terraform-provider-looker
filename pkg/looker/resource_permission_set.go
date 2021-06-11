@@ -1,13 +1,10 @@
 package looker
 
 import (
-	"strings"
+	"strconv"
 
-	"github.com/billtrust/looker-go-sdk/client/role"
-
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func resourcePermissionSet() *schema.Resource {
@@ -16,7 +13,6 @@ func resourcePermissionSet() *schema.Resource {
 		Read:   resourcePermissionSetRead,
 		Update: resourcePermissionSetUpdate,
 		Delete: resourcePermissionSetDelete,
-		Exists: resourcePermissionSetExists,
 		Importer: &schema.ResourceImporter{
 			State: resourcePermissionSetImport,
 		},
@@ -36,78 +32,71 @@ func resourcePermissionSet() *schema.Resource {
 }
 
 func resourcePermissionSetCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
+
+	permissionSetName := d.Get("name").(string)
 
 	var permissions []string
 	for _, permission := range d.Get("permissions").(*schema.Set).List() {
 		permissions = append(permissions, permission.(string))
 	}
 
-	params := role.NewCreatePermissionSetParams()
-	params.Body = &models.PermissionSet{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.Permissions = permissions
+	writePermissionSet := apiclient.WritePermissionSet{
+		Name:        &permissionSetName,
+		Permissions: &permissions,
+	}
 
-	result, err := client.Role.CreatePermissionSet(params)
+	permissionSet, err := client.CreatePermissionSet(writePermissionSet, nil)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(getStringFromID(result.Payload.ID))
+	permissionSetID := *permissionSet.Id
+	d.SetId(strconv.Itoa(int(permissionSetID)))
 
 	return resourcePermissionSetRead(d, m)
 }
 
 func resourcePermissionSetRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewPermissionSetParams()
-	params.PermissionSetID = ID
-
-	result, err := client.Role.PermissionSet(params)
+	permissionSet, err := client.PermissionSet(permissionSetID, "", nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	if err = d.Set("name", result.Payload.Name); err != nil {
+	if err = d.Set("name", permissionSet.Name); err != nil {
 		return err
 	}
-	if err = d.Set("permissions", result.Payload.Permissions); err != nil {
+	if err = d.Set("permissions", permissionSet.Permissions); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
+	permissionSetName := d.Get("name").(string)
 	var permissions []string
 	for _, permission := range d.Get("permissions").(*schema.Set).List() {
 		permissions = append(permissions, permission.(string))
 	}
-
-	params := role.NewUpdatePermissionSetParams()
-	params.PermissionSetID = ID
-	params.Body = &models.PermissionSet{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.Permissions = permissions
-
-	_, err = client.Role.UpdatePermissionSet(params)
+	writePermissionSet := apiclient.WritePermissionSet{
+		Name:        &permissionSetName,
+		Permissions: &permissions,
+	}
+	_, err = client.UpdatePermissionSet(permissionSetID, writePermissionSet, nil)
 	if err != nil {
 		return err
 	}
@@ -116,47 +105,19 @@ func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourcePermissionSetDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewDeletePermissionSetParams()
-	params.PermissionSetID = ID
-
-	_, err = client.Role.DeletePermissionSet(params)
+	_, err = client.DeletePermissionSet(permissionSetID, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func resourcePermissionSetExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
-	// Exists - This is called to verify a resource still exists. It is called prior to Read,
-	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
-
-	ID, err := getIDFromString(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	params := role.NewPermissionSetParams()
-	params.PermissionSetID = ID
-
-	_, err = client.Role.PermissionSet(params)
-	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func resourcePermissionSetImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {

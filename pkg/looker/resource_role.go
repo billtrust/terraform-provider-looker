@@ -1,13 +1,10 @@
 package looker
 
 import (
-	"strings"
+	"strconv"
 
-	"github.com/billtrust/looker-go-sdk/client/role"
-
-	apiclient "github.com/billtrust/looker-go-sdk/client"
-	"github.com/billtrust/looker-go-sdk/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
 func resourceRole() *schema.Resource {
@@ -16,7 +13,6 @@ func resourceRole() *schema.Resource {
 		Read:   resourceRoleRead,
 		Update: resourceRoleUpdate,
 		Delete: resourceRoleDelete,
-		Exists: resourceRoleExists,
 		Importer: &schema.ResourceImporter{
 			State: resourceRoleImport,
 		},
@@ -39,61 +35,59 @@ func resourceRole() *schema.Resource {
 }
 
 func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	permissionSetID, err := getIDFromString(d.Get("permission_set_id").(string))
+	roleName := d.Get("name").(string)
+	permissionSetID := d.Get("permission_set_id").(string)
+	modelSetID := d.Get("model_set_id").(string)
+	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
+	if err != nil {
+		return err
+	}
+	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
 	if err != nil {
 		return err
 	}
 
-	modelSetID, err := getIDFromString(d.Get("model_set_id").(string))
+	writeRole := apiclient.WriteRole{
+		Name:            &roleName,
+		PermissionSetId: &pSetID,
+		ModelSetId:      &mSetID,
+	}
+
+	role, err := client.CreateRole(writeRole, nil)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewCreateRoleParams()
-	params.Body = &models.Role{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.PermissionSetID = permissionSetID
-	params.Body.ModelSetID = modelSetID
-
-	result, err := client.Role.CreateRole(params)
-	if err != nil {
-		return err
-	}
-
-	d.SetId(getStringFromID(result.Payload.ID))
+	roleID := *role.Id
+	d.SetId(strconv.Itoa(int(roleID)))
 
 	return resourceRoleRead(d, m)
 }
 
 func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewRoleParams()
-	params.RoleID = ID
-
-	result, err := client.Role.Role(params)
+	role, err := client.Role(roleID, nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	if err = d.Set("name", result.Payload.Name); err != nil {
+	if err = d.Set("name", role.Name); err != nil {
 		return err
 	}
-	if err = d.Set("permission_set_id", result.Payload.PermissionSetID); err != nil {
+	pSetID := strconv.Itoa(int(*role.PermissionSet.Id))
+	if err = d.Set("permission_set_id", pSetID); err != nil {
 		return err
 	}
-	if err = d.Set("model_set_id", result.Payload.ModelSetID); err != nil {
+	mSetID := strconv.Itoa(int(*role.ModelSet.Id))
+	if err = d.Set("model_set_id", mSetID); err != nil {
 		return err
 	}
 
@@ -101,31 +95,30 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	permissionSetID, err := getIDFromString(d.Get("permission_set_id").(string))
+	roleName := d.Get("name").(string)
+	permissionSetID := d.Get("permission_set_id").(string)
+	modelSetID := d.Get("model_set_id").(string)
+	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
 	if err != nil {
 		return err
 	}
-
-	modelSetID, err := getIDFromString(d.Get("model_set_id").(string))
+	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
 	if err != nil {
 		return err
 	}
-
-	params := role.NewUpdateRoleParams()
-	params.RoleID = ID
-	params.Body = &models.Role{}
-	params.Body.Name = d.Get("name").(string)
-	params.Body.PermissionSetID = permissionSetID
-	params.Body.ModelSetID = modelSetID
-
-	_, err = client.Role.UpdateRole(params)
+	writeRole := apiclient.WriteRole{
+		Name:            &roleName,
+		PermissionSetId: &pSetID,
+		ModelSetId:      &mSetID,
+	}
+	_, err = client.UpdateRole(roleID, writeRole, nil)
 	if err != nil {
 		return err
 	}
@@ -134,47 +127,19 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*apiclient.LookerAPI30Reference)
+	client := m.(*apiclient.LookerSDK)
 
-	ID, err := getIDFromString(d.Id())
+	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return err
 	}
 
-	params := role.NewDeleteRoleParams()
-	params.RoleID = ID
-
-	_, err = client.Role.DeleteRole(params)
+	_, err = client.DeleteRole(roleID, nil)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func resourceRoleExists(d *schema.ResourceData, m interface{}) (b bool, e error) {
-	// Exists - This is called to verify a resource still exists. It is called prior to Read,
-	// and lowers the burden of Read to be able to assume the resource exists.
-	client := m.(*apiclient.LookerAPI30Reference)
-
-	ID, err := getIDFromString(d.Id())
-	if err != nil {
-		return false, err
-	}
-
-	params := role.NewRoleParams()
-	params.RoleID = ID
-
-	_, err = client.Role.Role(params)
-	if err != nil {
-		if strings.Contains(err.Error(), "Not found") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func resourceRoleImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {

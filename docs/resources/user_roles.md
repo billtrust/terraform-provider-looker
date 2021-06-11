@@ -24,7 +24,7 @@ resource "looker_user_roles" "user_roles" {
 
 ### Required
 
-- **role_ids** (Set of Number)
+- **role_ids** (Set of String)
 - **user_id** (String)
 
 ### Optional

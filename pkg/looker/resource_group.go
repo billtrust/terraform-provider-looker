@@ -58,7 +58,7 @@ func resourceGroupRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	if err = d.Set("group", group.Name); err != nil {
+	if err = d.Set("name", group.Name); err != nil {
 		return err
 	}
 

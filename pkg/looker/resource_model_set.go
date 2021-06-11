@@ -87,7 +87,6 @@ func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	modelSetName := d.Get("name").(string)
 	var modelNames []string
 	for _, modelName := range d.Get("models").(*schema.Set).List() {
@@ -102,7 +101,7 @@ func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	return resourceModelSetCreate(d, m)
+	return resourceModelSetRead(d, m)
 }
 
 func resourceModelSetDelete(d *schema.ResourceData, m interface{}) error {

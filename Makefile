@@ -7,8 +7,8 @@ help:
 
 .PHONY: vendor
 vendor: go.sum ## vendor dependencies
-	GO111MODULE=on go mod vendor
-	GO111MODULE=on go mod tidy
+	@GO111MODULE=on go mod vendor
+	@GO111MODULE=on go mod tidy
 
 .PHONY: lint
 lint: ## run linter
@@ -18,19 +18,23 @@ lint: ## run linter
 test: ## run tests
 	@go test -v -cover -race $(shell go list ./... | grep -v vendor)
 
+.PHONY: test-acceptance
+test-acceptance: ## runs all tests, including the acceptance tests
+	@TF_ACC=1 $(go_test) go test  -v -cover $(shell go list ./... | grep -v vendor)
+
 .PHONY: build
 build: ## build binary
-	go build -o build/$(BASE_BINARY_NAME) .
+	@go build -o build/$(BASE_BINARY_NAME) .
 
 .PHONY: docs
 docs: ## generate docs
-	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+	@go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 .PHONY: check-docs
 check-docs: docs ## check that docs have been generated
-	git diff --exit-code -- docs
+	@git diff --exit-code -- docs
 
 .PHONY: check-mod
 check-mod: ## check go.mod is up-to-date
-	go mod tidy
-	git diff --exit-code -- go.mod go.sum
+	@go mod tidy
+	@git diff --exit-code -- go.mod go.sum

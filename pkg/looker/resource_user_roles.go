@@ -25,7 +25,7 @@ func resourceUserRoles() *schema.Resource {
 			"role_ids": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -43,7 +43,11 @@ func resourceUserRolesCreate(d *schema.ResourceData, m interface{}) error {
 
 	var roleIDs []int64
 	for _, roleID := range d.Get("role_ids").(*schema.Set).List() {
-		roleIDs = append(roleIDs, roleID.(int64))
+		rID, err := strconv.ParseInt(roleID.(string), 10, 64)
+		if err != nil {
+			return err
+		}
+		roleIDs = append(roleIDs, rID)
 	}
 
 	_, err = client.SetUserRoles(userID, roleIDs, "", nil)
@@ -71,12 +75,13 @@ func resourceUserRolesRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	var roleIDs []int64
+	var roleIDs []string
 	for _, role := range userRoles {
-		roleIDs = append(roleIDs, *role.Id)
+		rID := strconv.Itoa(int(*role.Id))
+		roleIDs = append(roleIDs, rID)
 	}
 
-	if err = d.Set("user_id", userID); err != nil {
+	if err = d.Set("user_id", d.Id()); err != nil {
 		return err
 	}
 
@@ -97,7 +102,11 @@ func resourceUserRolesUpdate(d *schema.ResourceData, m interface{}) error {
 
 	var roleIDs []int64
 	for _, roleID := range d.Get("role_ids").(*schema.Set).List() {
-		roleIDs = append(roleIDs, roleID.(int64))
+		rID, err := strconv.ParseInt(roleID.(string), 10, 64)
+		if err != nil {
+			return err
+		}
+		roleIDs = append(roleIDs, rID)
 	}
 
 	_, err = client.SetUserRoles(userID, roleIDs, "", nil)

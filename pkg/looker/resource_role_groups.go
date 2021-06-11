@@ -25,7 +25,7 @@ func resourceRoleGroups() *schema.Resource {
 			"group_ids": {
 				Type:     schema.TypeSet,
 				Required: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -43,7 +43,11 @@ func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
 
 	var groupIDs []int64
 	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
-		groupIDs = append(groupIDs, groupID.(int64))
+		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
+		if err != nil {
+			return err
+		}
+		groupIDs = append(groupIDs, gID)
 	}
 
 	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
@@ -69,12 +73,13 @@ func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	var groupIDs []int64
+	var groupIDs []string
 	for _, group := range groups {
-		groupIDs = append(groupIDs, *group.Id)
+		gID := strconv.Itoa(int(*group.Id))
+		groupIDs = append(groupIDs, gID)
 	}
 
-	if err = d.Set("role_id", roleID); err != nil {
+	if err = d.Set("role_id", strconv.Itoa(int(roleID))); err != nil {
 		return err
 	}
 
@@ -95,7 +100,11 @@ func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
 
 	var groupIDs []int64
 	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
-		groupIDs = append(groupIDs, groupID.(int64))
+		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
+		if err != nil {
+			return err
+		}
+		groupIDs = append(groupIDs, gID)
 	}
 
 	_, err = client.SetRoleGroups(roleID, groupIDs, nil)

@@ -6,6 +6,10 @@ import (
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
 
+const (
+	defaultAPIVersion = "4.0"
+)
+
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -27,6 +31,21 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("LOOKER_API_BASE_URL", nil),
 				Description: "Looker API Base URL",
 			},
+			"api_version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("LOOKER_API_VERSION", defaultAPIVersion),
+			},
+			"verify_ssl": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("LOOKER_VERIFY_SSL", true),
+			},
+			"timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("LOOKER_TIMEOUT", nil),
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"looker_user":           resourceUser(),
@@ -47,12 +66,16 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	baseUrl := d.Get("base_url").(string)
 	clientID := d.Get("client_id").(string)
 	clientSecret := d.Get("client_secret").(string)
+	apiVersion := d.Get("api_version").(string)
+	timeout := d.Get("timeout").(int)
 
 	apiSettings := rtl.ApiSettings{
 		BaseUrl:      baseUrl,
 		ClientId:     clientID,
 		ClientSecret: clientSecret,
-		ApiVersion:   "4.0",
+		ApiVersion:   apiVersion,
+		VerifySsl:    d.Get("verify_ssl").(bool),
+		Timeout:      int32(timeout),
 	}
 	authSession := rtl.NewAuthSession(apiSettings)
 	client := apiclient.NewLookerSDK(authSession)

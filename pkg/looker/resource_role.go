@@ -23,11 +23,11 @@ func resourceRole() *schema.Resource {
 				Required: true,
 			},
 			"permission_set_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Required: true,
 			},
 			"model_set_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Required: true,
 			},
 		},
@@ -38,13 +38,21 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
 	roleName := d.Get("name").(string)
-	permissionSetID := d.Get("permission_set_id").(int64)
-	modelSetID := d.Get("model_set_id").(int64)
+	permissionSetID := d.Get("permission_set_id").(string)
+	modelSetID := d.Get("model_set_id").(string)
+	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
+	if err != nil {
+		return err
+	}
+	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
+	if err != nil {
+		return err
+	}
 
 	writeRole := apiclient.WriteRole{
 		Name:            &roleName,
-		PermissionSetId: &permissionSetID,
-		ModelSetId:      &modelSetID,
+		PermissionSetId: &pSetID,
+		ModelSetId:      &mSetID,
 	}
 
 	role, err := client.CreateRole(writeRole, nil)
@@ -74,10 +82,12 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("name", role.Name); err != nil {
 		return err
 	}
-	if err = d.Set("permission_set_id", role.PermissionSetId); err != nil {
+	pSetID := strconv.Itoa(int(*role.PermissionSet.Id))
+	if err = d.Set("permission_set_id", pSetID); err != nil {
 		return err
 	}
-	if err = d.Set("model_set_id", role.ModelSetId); err != nil {
+	mSetID := strconv.Itoa(int(*role.ModelSet.Id))
+	if err = d.Set("model_set_id", mSetID); err != nil {
 		return err
 	}
 
@@ -93,12 +103,20 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	roleName := d.Get("name").(string)
-	permissionSetID := d.Get("permission_set_id").(int64)
-	modelSetID := d.Get("model_set_id").(int64)
+	permissionSetID := d.Get("permission_set_id").(string)
+	modelSetID := d.Get("model_set_id").(string)
+	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
+	if err != nil {
+		return err
+	}
+	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
+	if err != nil {
+		return err
+	}
 	writeRole := apiclient.WriteRole{
 		Name:            &roleName,
-		PermissionSetId: &permissionSetID,
-		ModelSetId:      &modelSetID,
+		PermissionSetId: &pSetID,
+		ModelSetId:      &mSetID,
 	}
 	_, err = client.UpdateRole(roleID, writeRole, nil)
 	if err != nil {

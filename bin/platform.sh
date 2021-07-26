@@ -21,6 +21,9 @@ func main() {
 }
 EOF
 
+go mod init example.com/m
+go mod tidy
+
 go build -o platform
 ./platform
 

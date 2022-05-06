@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -52,7 +50,7 @@ func resourcePermissionSetCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	permissionSetID := *permissionSet.Id
-	d.SetId(strconv.Itoa(int(permissionSetID)))
+	d.SetId(permissionSetID)
 
 	return resourcePermissionSetRead(d, m)
 }
@@ -60,10 +58,7 @@ func resourcePermissionSetCreate(d *schema.ResourceData, m interface{}) error {
 func resourcePermissionSetRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	permissionSetID := d.Id()
 
 	permissionSet, err := client.PermissionSet(permissionSetID, "", nil)
 	if err != nil {
@@ -82,10 +77,7 @@ func resourcePermissionSetRead(d *schema.ResourceData, m interface{}) error {
 func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	permissionSetID := d.Id()
 
 	permissionSetName := d.Get("name").(string)
 	var permissions []string
@@ -96,7 +88,7 @@ func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
 		Name:        &permissionSetName,
 		Permissions: &permissions,
 	}
-	_, err = client.UpdatePermissionSet(permissionSetID, writePermissionSet, nil)
+	_, err := client.UpdatePermissionSet(permissionSetID, writePermissionSet, nil)
 	if err != nil {
 		return err
 	}
@@ -107,12 +99,9 @@ func resourcePermissionSetUpdate(d *schema.ResourceData, m interface{}) error {
 func resourcePermissionSetDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	permissionSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	permissionSetID := d.Id()
 
-	_, err = client.DeletePermissionSet(permissionSetID, nil)
+	_, err := client.DeletePermissionSet(permissionSetID, nil)
 	if err != nil {
 		return err
 	}

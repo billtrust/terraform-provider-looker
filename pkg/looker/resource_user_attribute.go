@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -41,9 +39,9 @@ func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
 	userAttributeType := d.Get("type").(string)
 
 	writeUserAttribute := apiclient.WriteUserAttribute{
-		Name:  &userAttributeName,
-		Label: &userAttributeLabel,
-		Type:  &userAttributeType,
+		Name:  userAttributeName,
+		Label: userAttributeLabel,
+		Type:  userAttributeType,
 	}
 
 	userAttribute, err := client.CreateUserAttribute(writeUserAttribute, "", nil)
@@ -52,7 +50,7 @@ func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	userAttributeID := *userAttribute.Id
-	d.SetId(strconv.Itoa(int(userAttributeID)))
+	d.SetId(userAttributeID)
 
 	return resourceUserAttributeRead(d, m)
 }
@@ -60,10 +58,7 @@ func resourceUserAttributeCreate(d *schema.ResourceData, m interface{}) error {
 func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userAttributeID := d.Id()
 
 	userAttribute, err := client.UserAttribute(userAttributeID, "", nil)
 	if err != nil {
@@ -86,22 +81,19 @@ func resourceUserAttributeRead(d *schema.ResourceData, m interface{}) error {
 func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userAttributeID := d.Id()
 
 	userAttributeName := d.Get("name").(string)
 	userAttributeType := d.Get("type").(string)
 	userAttributeLabel := d.Get("type").(string)
 
 	writeUserAttribute := apiclient.WriteUserAttribute{
-		Name:  &userAttributeName,
-		Label: &userAttributeLabel,
-		Type:  &userAttributeType,
+		Name:  userAttributeName,
+		Label: userAttributeLabel,
+		Type:  userAttributeType,
 	}
 
-	_, err = client.UpdateUserAttribute(userAttributeID, writeUserAttribute, "", nil)
+	_, err := client.UpdateUserAttribute(userAttributeID, writeUserAttribute, "", nil)
 	if err != nil {
 		return err
 	}
@@ -112,12 +104,9 @@ func resourceUserAttributeUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceUserAttributeDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userAttributeID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userAttributeID := d.Id()
 
-	_, err = client.DeleteUserAttribute(userAttributeID, nil)
+	_, err := client.DeleteUserAttribute(userAttributeID, nil)
 	if err != nil {
 		return err
 	}

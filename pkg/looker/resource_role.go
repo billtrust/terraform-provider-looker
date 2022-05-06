@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -40,19 +38,11 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	roleName := d.Get("name").(string)
 	permissionSetID := d.Get("permission_set_id").(string)
 	modelSetID := d.Get("model_set_id").(string)
-	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
-	if err != nil {
-		return err
-	}
-	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
-	if err != nil {
-		return err
-	}
 
 	writeRole := apiclient.WriteRole{
 		Name:            &roleName,
-		PermissionSetId: &pSetID,
-		ModelSetId:      &mSetID,
+		PermissionSetId: &permissionSetID,
+		ModelSetId:      &modelSetID,
 	}
 
 	role, err := client.CreateRole(writeRole, nil)
@@ -61,7 +51,7 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	roleID := *role.Id
-	d.SetId(strconv.Itoa(int(roleID)))
+	d.SetId(roleID)
 
 	return resourceRoleRead(d, m)
 }
@@ -69,10 +59,7 @@ func resourceRoleCreate(d *schema.ResourceData, m interface{}) error {
 func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
 	role, err := client.Role(roleID, nil)
 	if err != nil {
@@ -82,11 +69,11 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 	if err = d.Set("name", role.Name); err != nil {
 		return err
 	}
-	pSetID := strconv.Itoa(int(*role.PermissionSet.Id))
+	pSetID := *role.PermissionSet.Id
 	if err = d.Set("permission_set_id", pSetID); err != nil {
 		return err
 	}
-	mSetID := strconv.Itoa(int(*role.ModelSet.Id))
+	mSetID := *role.ModelSet.Id
 	if err = d.Set("model_set_id", mSetID); err != nil {
 		return err
 	}
@@ -97,28 +84,17 @@ func resourceRoleRead(d *schema.ResourceData, m interface{}) error {
 func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
 	roleName := d.Get("name").(string)
 	permissionSetID := d.Get("permission_set_id").(string)
 	modelSetID := d.Get("model_set_id").(string)
-	pSetID, err := strconv.ParseInt(permissionSetID, 10, 64)
-	if err != nil {
-		return err
-	}
-	mSetID, err := strconv.ParseInt(modelSetID, 10, 64)
-	if err != nil {
-		return err
-	}
 	writeRole := apiclient.WriteRole{
 		Name:            &roleName,
-		PermissionSetId: &pSetID,
-		ModelSetId:      &mSetID,
+		PermissionSetId: &permissionSetID,
+		ModelSetId:      &modelSetID,
 	}
-	_, err = client.UpdateRole(roleID, writeRole, nil)
+	_, err := client.UpdateRole(roleID, writeRole, nil)
 	if err != nil {
 		return err
 	}
@@ -129,12 +105,9 @@ func resourceRoleUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceRoleDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
-	_, err = client.DeleteRole(roleID, nil)
+	_, err := client.DeleteRole(roleID, nil)
 	if err != nil {
 		return err
 	}

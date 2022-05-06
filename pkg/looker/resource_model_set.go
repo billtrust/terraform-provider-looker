@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -52,7 +50,7 @@ func resourceModelSetCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	modelSetID := *modelSet.Id
-	d.SetId(strconv.Itoa(int(modelSetID)))
+	d.SetId(modelSetID)
 
 	return resourceModelSetRead(d, m)
 }
@@ -60,10 +58,7 @@ func resourceModelSetCreate(d *schema.ResourceData, m interface{}) error {
 func resourceModelSetRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	modelSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	modelSetID := d.Id()
 
 	modelSet, err := client.ModelSet(modelSetID, "", nil)
 	if err != nil {
@@ -83,10 +78,7 @@ func resourceModelSetRead(d *schema.ResourceData, m interface{}) error {
 func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	modelSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	modelSetID := d.Id()
 	modelSetName := d.Get("name").(string)
 	var modelNames []string
 	for _, modelName := range d.Get("models").(*schema.Set).List() {
@@ -96,7 +88,7 @@ func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 		Name:   &modelSetName,
 		Models: &modelNames,
 	}
-	_, err = client.UpdateModelSet(modelSetID, writeModelSet, nil)
+	_, err := client.UpdateModelSet(modelSetID, writeModelSet, nil)
 	if err != nil {
 		return err
 	}
@@ -107,12 +99,9 @@ func resourceModelSetUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceModelSetDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	modelSetID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	modelSetID := d.Id()
 
-	_, err = client.DeleteModelSet(modelSetID, nil)
+	_, err := client.DeleteModelSet(modelSetID, nil)
 	if err != nil {
 		return err
 	}

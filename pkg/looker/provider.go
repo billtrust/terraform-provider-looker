@@ -57,7 +57,9 @@ func Provider() *schema.Provider {
 			"looker_role_groups":    resourceRoleGroups(),
 			"looker_user_attribute": resourceUserAttribute(),
 		},
-
+		DataSourcesMap: map[string]*schema.Resource{
+			"looker_role_users": dsRoleUsers(),
+		},
 		ConfigureFunc: providerConfigure,
 	}
 }

@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -34,28 +32,19 @@ func resourceRoleGroups() *schema.Resource {
 func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleIDString := d.Get("role_id").(string)
+	roleID := d.Get("role_id").(string)
 
-	roleID, err := strconv.ParseInt(roleIDString, 10, 64)
-	if err != nil {
-		return err
-	}
-
-	var groupIDs []int64
+	var groupIDs []string
 	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
-		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
-		if err != nil {
-			return err
-		}
-		groupIDs = append(groupIDs, gID)
+		groupIDs = append(groupIDs, groupID.(string))
 	}
 
-	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
+	_, err := client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(roleIDString)
+	d.SetId(roleID)
 
 	return resourceRoleGroupsRead(d, m)
 }
@@ -63,10 +52,7 @@ func resourceRoleGroupsCreate(d *schema.ResourceData, m interface{}) error {
 func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
 	groups, err := client.RoleGroups(roleID, "", nil)
 	if err != nil {
@@ -75,11 +61,10 @@ func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 
 	var groupIDs []string
 	for _, group := range groups {
-		gID := strconv.Itoa(int(*group.Id))
-		groupIDs = append(groupIDs, gID)
+		groupIDs = append(groupIDs, *group.Id)
 	}
 
-	if err = d.Set("role_id", strconv.Itoa(int(roleID))); err != nil {
+	if err = d.Set("role_id", roleID); err != nil {
 		return err
 	}
 
@@ -93,21 +78,14 @@ func resourceRoleGroupsRead(d *schema.ResourceData, m interface{}) error {
 func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
-	var groupIDs []int64
+	var groupIDs []string
 	for _, groupID := range d.Get("group_ids").(*schema.Set).List() {
-		gID, err := strconv.ParseInt(groupID.(string), 10, 64)
-		if err != nil {
-			return err
-		}
-		groupIDs = append(groupIDs, gID)
+		groupIDs = append(groupIDs, groupID.(string))
 	}
 
-	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
+	_, err := client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}
@@ -118,13 +96,10 @@ func resourceRoleGroupsUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceRoleGroupsDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	roleID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	roleID := d.Id()
 
-	groupIDs := []int64{}
-	_, err = client.SetRoleGroups(roleID, groupIDs, nil)
+	groupIDs := []string{}
+	_, err := client.SetRoleGroups(roleID, groupIDs, nil)
 	if err != nil {
 		return err
 	}

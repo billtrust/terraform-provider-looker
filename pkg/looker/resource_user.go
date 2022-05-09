@@ -1,8 +1,6 @@
 package looker
 
 import (
-	"strconv"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	apiclient "github.com/looker-open-source/sdk-codegen/go/sdk/v4"
 )
@@ -50,7 +48,7 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	userID := *user.Id
-	d.SetId(strconv.Itoa(int(userID)))
+	d.SetId(userID)
 
 	writeCredentialsEmail := apiclient.WriteCredentialsEmail{
 		Email: &email,
@@ -69,10 +67,7 @@ func resourceUserCreate(d *schema.ResourceData, m interface{}) error {
 func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userID := d.Id()
 
 	user, err := client.User(userID, "", nil)
 	if err != nil {
@@ -95,10 +90,7 @@ func resourceUserRead(d *schema.ResourceData, m interface{}) error {
 func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userID := d.Id()
 
 	if d.HasChanges("first_name", "last_name") {
 		firstName := d.Get("first_name").(string)
@@ -107,7 +99,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 			FirstName: &firstName,
 			LastName:  &lastName,
 		}
-		_, err = client.UpdateUser(userID, writeUser, "", nil)
+		_, err := client.UpdateUser(userID, writeUser, "", nil)
 		if err != nil {
 			return err
 		}
@@ -118,7 +110,7 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 		writeCredentialsEmail := apiclient.WriteCredentialsEmail{
 			Email: &email,
 		}
-		_, err = client.UpdateUserCredentialsEmail(userID, writeCredentialsEmail, "", nil)
+		_, err := client.UpdateUserCredentialsEmail(userID, writeCredentialsEmail, "", nil)
 		if err != nil {
 			return err
 		}
@@ -130,12 +122,9 @@ func resourceUserUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceUserDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*apiclient.LookerSDK)
 
-	userID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return err
-	}
+	userID := d.Id()
 
-	_, err = client.DeleteUser(userID, nil)
+	_, err := client.DeleteUser(userID, nil)
 	if err != nil {
 		return err
 	}
